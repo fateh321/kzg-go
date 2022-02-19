@@ -46,7 +46,7 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	runtime.GOMAXPROCS(0)
     var wg sync.WaitGroup
 
-	if len(out) <= 4 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
+	if len(out) <= 8 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
 		fs.simpleFT(vals, valsOffset, valsStride, rootsOfUnity, rootsOfUnityStride, out)
 		return
 	}
