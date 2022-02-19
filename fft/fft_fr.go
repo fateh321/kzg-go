@@ -59,7 +59,7 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	half := uint64(len(out)) >> 1
 // 	fmt.Println("fft input size is", 2*half)
 	// L will be the left half of out
-    if len(out) > 2 {
+    if len(out) > 128 {
    	// fmt.Println("len(out) is", len(out))
     wg.Add(1)
     go func(){
