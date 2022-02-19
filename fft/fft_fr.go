@@ -59,7 +59,7 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	half := uint64(len(out)) >> 1
 // 	fmt.Println("fft input size is", 2*half)
 	// L will be the left half of out
-    // if len(out) > 640 {
+    if len(out) > 640 {
    	// fmt.Println("len(out) is", len(out))
     wg.Add(1)
     go func(){
@@ -73,12 +73,12 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
     defer wg.Done()
 	}()
     wg.Wait()
-	// } else {
+	} else {
 
-	// fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
-	// fs._fft(vals, valsOffset+valsStride, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[half:]) // just take even again
+	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
+	fs._fft(vals, valsOffset+valsStride, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[half:]) // just take even again
 	
-	// }
+	}
 
     // elapsed = time.Since(start)
     // fmt.Println("recursion took time", elapsed,"len(out) is",len(out))
