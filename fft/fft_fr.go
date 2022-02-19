@@ -2,7 +2,7 @@ package fft
 
 import (
 	"fmt"
-//     "time"
+    "time"
     "runtime"
     "sync"
 	gmcl "github.com/alinush/go-mcl"
@@ -11,12 +11,13 @@ import (
 
 func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
 	l := uint64(len(out))
-    runtime.GOMAXPROCS(8)
+    runtime.GOMAXPROCS(0)
     var wg sync.WaitGroup
 
 	for i := uint64(0); i < l; i++ {
         wg.Add(1)
         go func(i uint64) {
+        // go func() {
         var v gmcl.Fr
         var tmp gmcl.Fr
         var last gmcl.Fr
@@ -35,16 +36,23 @@ func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride ui
 		ff.CopyFr(&out[i], &last)
         defer wg.Done()
          }(i)
+         // }()
 	}
     wg.Wait()
 }
 
 func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
+     start := time.Now()
+	
 	if len(out) <= 4 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
 		fs.simpleFT(vals, valsOffset, valsStride, rootsOfUnity, rootsOfUnityStride, out)
 		return
 	}
-    runtime.GOMAXPROCS(128)
+    elapsed := time.Since(start)
+    fmt.Println("simpleft took time", elapsed,"len(out) is",len(out))
+	start = time.Now()
+
+    runtime.GOMAXPROCS(0)
     var wg sync.WaitGroup
 
 	half := uint64(len(out)) >> 1
@@ -63,6 +71,9 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	}()
     wg.Wait()
 
+    elapsed = time.Since(start)
+    fmt.Println("recursion took time", elapsed,"len(out) is",len(out))
+	start = time.Now()
 
 	for i := uint64(0); i < half; i++ {
 		// temporary copies, so that writing to output doesn't conflict with input
@@ -79,6 +90,9 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 //         defer wg.Done()
 //          }(i)
 	}
+    elapsed = time.Since(start)
+    fmt.Println("third for block took time", elapsed,"len(out) is",len(out))
+
 // 	wg.Wait()
 }
 
