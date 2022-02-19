@@ -2,7 +2,7 @@ package fft
 
 import (
 	"fmt"
-    "time"
+    // "time"
     "runtime"
     "sync"
 	gmcl "github.com/alinush/go-mcl"
@@ -42,15 +42,15 @@ func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride ui
 }
 
 func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
-     start := time.Now()
+     // start := time.Now()
 	
 	if len(out) <= 4 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
 		fs.simpleFT(vals, valsOffset, valsStride, rootsOfUnity, rootsOfUnityStride, out)
 		return
 	}
-    elapsed := time.Since(start)
-    fmt.Println("simpleft took time", elapsed,"len(out) is",len(out))
-	start = time.Now()
+    // elapsed := time.Since(start)
+    // fmt.Println("simpleft took time", elapsed,"len(out) is",len(out))
+	// start = time.Now()
 
     runtime.GOMAXPROCS(0)
     var wg sync.WaitGroup
@@ -58,6 +58,7 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	half := uint64(len(out)) >> 1
 // 	fmt.Println("fft input size is", 2*half)
 	// L will be the left half of out
+    if len(out) > 8 {
     wg.Add(1)
     go func(){
 	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
@@ -70,10 +71,16 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
     defer wg.Done()
 	}()
     wg.Wait()
+	} else {
 
-    elapsed = time.Since(start)
-    fmt.Println("recursion took time", elapsed,"len(out) is",len(out))
-	start = time.Now()
+	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
+	fs._fft(vals, valsOffset+valsStride, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[half:]) // just take even again
+	
+	}
+
+    // elapsed = time.Since(start)
+    // fmt.Println("recursion took time", elapsed,"len(out) is",len(out))
+	// start = time.Now()
 
 	for i := uint64(0); i < half; i++ {
 		// temporary copies, so that writing to output doesn't conflict with input
@@ -90,8 +97,8 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 //         defer wg.Done()
 //          }(i)
 	}
-    elapsed = time.Since(start)
-    fmt.Println("third for block took time", elapsed,"len(out) is",len(out))
+    // elapsed = time.Since(start)
+    // fmt.Println("third for block took time", elapsed,"len(out) is",len(out))
 
 // 	wg.Wait()
 }
