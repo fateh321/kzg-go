@@ -98,6 +98,7 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 //         defer wg.Done()
 //          }(i)
 	}
+	return
     // elapsed = time.Since(start)
     // fmt.Println("third for block took time", elapsed,"len(out) is",len(out))
 
