@@ -11,7 +11,7 @@ import (
 
 func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
 	l := uint64(len(out))
-    runtime.GOMAXPROCS(4)
+    runtime.GOMAXPROCS(128)
     var wg sync.WaitGroup
 
 	for i := uint64(0); i < l; i++ {
