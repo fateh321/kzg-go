@@ -44,7 +44,7 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 		fs.simpleFT(vals, valsOffset, valsStride, rootsOfUnity, rootsOfUnityStride, out)
 		return
 	}
-    runtime.GOMAXPROCS(8)
+    runtime.GOMAXPROCS(16)
     var wg sync.WaitGroup
 
 	half := uint64(len(out)) >> 1
