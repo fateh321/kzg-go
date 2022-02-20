@@ -44,7 +44,7 @@ func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride ui
 func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
      // start := time.Now()
 	runtime.GOMAXPROCS(0)
-    var wg sync.WaitGroup
+    var wg2 sync.WaitGroup
 
 	if len(out) <= 4 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
 		fs.simpleFT(vals, valsOffset, valsStride, rootsOfUnity, rootsOfUnityStride, out)
@@ -61,18 +61,18 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	// L will be the left half of out
     if len(out) > 512 {
    	// fmt.Println("len(out) is", len(out))
-    wg.Add(1)
+    wg2.Add(1)
     go func(){
 	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
-    defer wg.Done()
+    defer wg2.Done()
 	}()
 	// R will be the right half of out
-    wg.Add(1)
+    wg2.Add(1)
     go func(){
 	fs._fft(vals, valsOffset+valsStride, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[half:]) // just take even again
-    defer wg.Done()
+    defer wg2.Done()
 	}()
-    wg.Wait()
+    wg2.Wait()
 	} else {
 
 	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
