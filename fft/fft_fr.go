@@ -86,8 +86,8 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 
 	for i := uint64(0); i < half; i++ {
 		// temporary copies, so that writing to output doesn't conflict with input
-        wg.Add(1)
-        go func(i uint64) {
+        // wg.Add(1)
+        // go func(i uint64) {
         var yTimesRoot gmcl.Fr
         var x, y gmcl.Fr
 		ff.CopyFr(&x, &out[i])
@@ -96,10 +96,10 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 		gmcl.FrMul(&yTimesRoot, &y, root)
 		gmcl.FrAdd(&out[i], &x, &yTimesRoot)
 		gmcl.FrSub(&out[i+half], &x, &yTimesRoot)
-        defer wg.Done()
-         }(i)
+        // defer wg.Done()
+         // }(i)
 	}
-	wg.Wait()
+	// wg.Wait()
 	return
     // elapsed = time.Since(start)
     // fmt.Println("third for block took time", elapsed,"len(out) is",len(out))
