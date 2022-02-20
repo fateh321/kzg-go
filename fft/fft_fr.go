@@ -12,10 +12,10 @@ import (
 func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
 	l := uint64(len(out))
     runtime.GOMAXPROCS(0)
-    var wg sync.WaitGroup
+    var wg1 sync.WaitGroup
 
 	for i := uint64(0); i < l; i++ {
-        wg.Add(1)
+        wg1.Add(1)
         go func(i uint64) {
         // go func() {
         var v gmcl.Fr
@@ -34,11 +34,11 @@ func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride ui
 			gmcl.FrAdd(&last, &tmp, &v)
 		}
 		ff.CopyFr(&out[i], &last)
-        defer wg.Done()
+        defer wg1.Done()
          }(i)
          // }()
 	}
-    wg.Wait()
+    wg1.Wait()
 }
 
 func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
