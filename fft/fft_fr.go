@@ -11,7 +11,7 @@ import (
 
 func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
 	l := uint64(len(out))
-    runtime.GOMAXPROCS(0)
+    runtime.GOMAXPROCS(1)
     var wg1 sync.WaitGroup
 
 	for i := uint64(0); i < l; i++ {
@@ -43,7 +43,7 @@ func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride ui
 
 func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
      // start := time.Now()
-	runtime.GOMAXPROCS(0)
+	runtime.GOMAXPROCS(1)
     var wg2 sync.WaitGroup
 
 	if len(out) <= 4 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
