@@ -3,20 +3,20 @@ package fft
 import (
 	"fmt"
     // "time"
-    "runtime"
-    "sync"
+    // "runtime"
+    // "sync"
 	gmcl "github.com/alinush/go-mcl"
 	"github.com/hyperproofs/kzg-go/ff"
 )
 
 func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
 	l := uint64(len(out))
-    runtime.GOMAXPROCS(1)
-    var wg1 sync.WaitGroup
+    // runtime.GOMAXPROCS(1)
+    // var wg1 sync.WaitGroup
 
 	for i := uint64(0); i < l; i++ {
-        wg1.Add(1)
-        go func(i uint64) {
+        // wg1.Add(1)
+        // go func(i uint64) {
         // go func() {
         var v gmcl.Fr
         var tmp gmcl.Fr
@@ -34,17 +34,17 @@ func (fs *FFTSettings) simpleFT(vals []gmcl.Fr, valsOffset uint64, valsStride ui
 			gmcl.FrAdd(&last, &tmp, &v)
 		}
 		ff.CopyFr(&out[i], &last)
-        defer wg1.Done()
-         }(i)
+        // defer wg1.Done()
+         // }(i)
          // }()
 	}
-    wg1.Wait()
+    // wg1.Wait()
 }
 
 func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64, rootsOfUnity []gmcl.Fr, rootsOfUnityStride uint64, out []gmcl.Fr) {
      // start := time.Now()
-	runtime.GOMAXPROCS(1)
-    var wg2 sync.WaitGroup
+	// runtime.GOMAXPROCS(1)
+    // var wg2 sync.WaitGroup
 
 	if len(out) <= 4 { // if the value count is small, run the unoptimized version instead. // TODO tune threshold.
 		fs.simpleFT(vals, valsOffset, valsStride, rootsOfUnity, rootsOfUnityStride, out)
@@ -61,18 +61,18 @@ func (fs *FFTSettings) _fft(vals []gmcl.Fr, valsOffset uint64, valsStride uint64
 	// L will be the left half of out
     if len(out) > 512 {
    	// fmt.Println("len(out) is", len(out))
-    wg2.Add(1)
-    go func(){
+    // wg2.Add(1)
+    // go func(){
 	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
-    defer wg2.Done()
-	}()
+    // defer wg2.Done()
+	// }()
 	// R will be the right half of out
-    wg2.Add(1)
-    go func(){
+    // wg2.Add(1)
+    // go func(){
 	fs._fft(vals, valsOffset+valsStride, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[half:]) // just take even again
-    defer wg2.Done()
-	}()
-    wg2.Wait()
+    // defer wg2.Done()
+	// }()
+    // wg2.Wait()
 	} else {
 
 	fs._fft(vals, valsOffset, valsStride<<1, rootsOfUnity, rootsOfUnityStride<<1, out[:half])
